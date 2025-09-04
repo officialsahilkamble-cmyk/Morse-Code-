@@ -1,0 +1,5 @@
+{
+  "name": "Morse Code Master",
+  "description": "An interactive web application designed to help users learn and practice Morse code. It features multiple levels, instant feedback, and AI-powered hints from Gemini to make learning engaging and effective.",
+  "requestFramePermissions": []
+}
