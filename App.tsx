@@ -51,7 +51,7 @@ const App: React.FC = () => {
       // 2. Prepare and show the App Open Ad
       const appOpenOptions: AppOpenAdOptions = {
         adId: 'ca-app-pub-4897524780440810/4010744536',
-        isTesting: true, // ⚠️ IMPORTANT: Set to 'false' for publishing!
+        isTesting: false, // ⚠️ IMPORTANT: Set to 'false' for publishing!
       };
       // We wrap this in a try/catch block to prevent app crashes if the ad fails to show.
       try {
@@ -67,7 +67,7 @@ const App: React.FC = () => {
         adSize: AdSize.BANNER,
         position: AdPosition.BOTTOM_CENTER,
         margin: 0,
-        isTesting: true, // ⚠️ IMPORTANT: Set to 'false' for publishing!
+        isTesting: false, // ⚠️ IMPORTANT: Set to 'false' for publishing!
       };
       // We wrap this in a try/catch block as well.
       try {
