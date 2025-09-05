@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
+// ADMOB: Import AdMob library
+import { AdMob, AdOptions, AdSize, AdPosition, AppOpenAdOptions } from '@capacitor-community/admob';
 import LevelSelectScreen from './components/LevelSelectScreen';
 import GameScreen from './components/GameScreen';
 import Header from './components/Header';
@@ -22,18 +24,63 @@ const App: React.FC = () => {
   const [activeModal, setActiveModal] = useState<ModalType | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [initialGameMode, setInitialGameMode] = useState<'level' | 'practice'>('level');
-  
+
   const [highestUnlockedLevel, setHighestUnlockedLevel] = useState<number>(() => {
     const savedProgress = localStorage.getItem('morseMasterProgress');
     return savedProgress ? parseInt(savedProgress, 10) : 0;
   });
-  
+
   const [lastCompletedLevel, setLastCompletedLevel] = useState<number | null>(null);
-  
+
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     const savedTheme = localStorage.getItem('morseMasterTheme') as 'light' | 'dark' | null;
     return savedTheme || 'dark';
   });
+
+  // ADMOB: New useEffect hook specifically for initializing ads.
+  // This runs only ONCE when the app first loads.
+  useEffect(() => {
+    const initializeAndShowAds = async () => {
+      // 1. Initialize AdMob
+      await AdMob.initialize({
+        requestTrackingAuthorization: true,
+        testingDevices: [], // Add your test device ID here for development
+        initializeForTesting: true,
+      });
+
+      // 2. Prepare and show the App Open Ad
+      const appOpenOptions: AppOpenAdOptions = {
+        adId: 'ca-app-pub-4897524780440810/4010744536',
+        isTesting: true, // ⚠️ IMPORTANT: Set to 'false' for publishing!
+      };
+      // We wrap this in a try/catch block to prevent app crashes if the ad fails to show.
+      try {
+        await AdMob.prepareAppOpen(appOpenOptions);
+        await AdMob.showAppOpen();
+      } catch (e) {
+        console.error("App Open Ad failed", e);
+      }
+      
+      // 3. Show the Banner Ad
+      const bannerOptions: AdOptions = {
+        adId: 'ca-app-pub-4897524780440810/2697662864',
+        adSize: AdSize.BANNER,
+        position: AdPosition.BOTTOM_CENTER,
+        margin: 0,
+        isTesting: true, // ⚠️ IMPORTANT: Set to 'false' for publishing!
+      };
+      // We wrap this in a try/catch block as well.
+      try {
+        await AdMob.showBanner(bannerOptions);
+      } catch(e) {
+        console.error("Banner Ad failed", e);
+      }
+    };
+
+    // Run the ad initialization function
+    initializeAndShowAds();
+  }, []); // The empty array [] ensures this runs only once.
+
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -73,7 +120,7 @@ const App: React.FC = () => {
       setScreen('game');
     }
   }, [highestUnlockedLevel]);
-  
+
   const handlePracticeSelect = useCallback(() => {
     const practiceLevel: Level = { name: 'Practice', challenges: [] };
     setSelectedLevel(practiceLevel);
@@ -86,7 +133,7 @@ const App: React.FC = () => {
     setScreen('levelSelect');
     setSelectedLevel(null);
   }, []);
-  
+
   const handleLevelComplete = useCallback(() => {
     const completedLevelIndex = levelIndex;
     const nextLevel = completedLevelIndex + 1;
